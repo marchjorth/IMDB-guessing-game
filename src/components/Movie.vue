@@ -32,15 +32,20 @@
 
 <div class="test-shit" style="text-align: left;">
     <ul>
-      <li v-for="(item, index) in array" :key="index">{{ item.name }} {{ item.time }}</li>
+      <li v-for="(item, index) in array" :key="index">{{ item.name }} | Points: {{ item.points }}</li>
     </ul>
 
-    <pre>{{ array }}</pre>
+    <!-- <pre>{{ array }}</pre> -->
 
-    <button @click="addTimeProp">Tilføj prop til array</button>
-    <button @click="updateTimeProp">Update prop til array</button>
+    <button @click="addPointsProp">Tilføj point</button>
+    <button @click="updatePointsProp">Update prop til array</button>
     <button @click="addItem">Add item</button>
+    <button @click="givePoints">Give points</button>
     <input placeholder="item name" type="text" id="newItemName" />
+
+
+    <input type="text" id="points" placeholder="points" />
+    <input type="text" id="index" placeholder="index" />
 </div>
 
     <br />
@@ -146,23 +151,36 @@ export default {
     msg: String
   },
   created() {
-    this.array.push({ name: "Item 1" }, { name: "Item 2" });
+    this.array.push({ name: "Player 1" }, { name: "Player 2" })
   },
   methods: {
-    addTimeProp() {
+    addPointsProp() {
       this.array.forEach(item => {
-        this.$set(item, "time", null);
+        this.$set(item, "points", 0);
       });
     },
-    updateTimeProp() {
+    updatePointsProp() {
       this.array.forEach(item => {
-        item.time = new Date().toString();
+        item.points = 0;
       });
     },
     addItem() {
       this.array.push({
-        name: $('#newItemName').val()
+        name: $('#newItemName').val(),
+        points: 0
       })
+    },
+    givePoints() {
+      let x = this.array.length - 1
+      let xName = this.array[x];
+      /* eslint-disable no-console */
+      console.log(x, xName.name)
+
+      let itemPoints = $('#points').val();
+      let itemIndex = $('#index').val();
+
+      this.array[itemIndex].points = itemPoints;
+
     },
     generateMovie() {
       let chooseRandom = Math.floor(Math.random() * this.movieArray.length);
