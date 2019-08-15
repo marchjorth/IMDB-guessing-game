@@ -1,7 +1,7 @@
 <template>
   <div>
     {{ message }}
-    <button class="generate-movie" @click="generateMovie">Generate random movie</button>
+    <button class="generate-movie" @click="generateMovie">Ny film</button>
 
     <div class="movie">
       <span class="title"></span>
@@ -10,7 +10,7 @@
         class="movie-poster"
         src="https://cdn4.iconfinder.com/data/icons/user-essential/32/clipper_clipboard_film_movie_multimedia-512.png"
       />
-      <span class="rating"></span>
+      <span class="rating hidden"></span>
     </div>
     <ul id="player-list">
       <li
@@ -30,23 +30,25 @@
     <br />
     <br />
 
-<div class="test-shit" style="text-align: left;">
-    <ul>
-      <li v-for="(item, index) in array" :key="index">{{ item.name }} | Points: {{ item.points }}</li>
-    </ul>
+    <div class="test-shit" style="text-align: left;">
+      <ul>
+        <li
+          v-for="(item, index) in array"
+          :key="index"
+        >{{ item.name }} | Points: {{ item.points }} | Gæt: {{ item.guess}}</li>
+      </ul>
 
-    <!-- <pre>{{ array }}</pre> -->
+      <!-- <pre>{{ array }}</pre> -->
 
-    <button @click="addPointsProp">Tilføj point</button>
-    <button @click="updatePointsProp">Update prop til array</button>
-    <button @click="addItem">Add item</button>
-    <button @click="givePoints">Give points</button>
-    <input placeholder="item name" type="text" id="newItemName" />
+      <!-- <button @click="addPointsProp">Tilføj point</button> -->
+      <!-- <button @click="updatePointsProp">Update prop til array</button> -->
+      <button @click="addItem">Tilføj spiller</button>
+      <!-- <button @click="givePoints">Give points</button> -->
+      <input placeholder="item name" type="text" id="newItemName" />
 
-
-    <input type="text" id="points" placeholder="points" />
-    <input type="text" id="index" placeholder="index" />
-</div>
+      <!-- <input type="text" id="points" placeholder="points" /> -->
+      <!-- <input type="text" id="index" placeholder="index" /> -->
+    </div>
 
     <br />
     <br />
@@ -140,19 +142,23 @@ export default {
         "Gemini Man"
       ],
       playerList: [
-        { myTurn: false, name: "Peter", points: 0 }
+        // { myTurn: false, name: "Peter", points: 0 }
       ],
       currentActive: Number,
       currentGuess: String,
-      array: []
+      array: [],
+      currentIndex: 0,
+      currentMovie: {
+        rating: Number
+      }
     };
   },
   props: {
     msg: String
   },
-  created() {
-    this.array.push({ name: "Player 1" }, { name: "Player 2" })
-  },
+  // created() {
+  //   this.array.push({ name: "Player 1", points: 0, guess: String });
+  // },
   methods: {
     addPointsProp() {
       this.array.forEach(item => {
@@ -166,21 +172,23 @@ export default {
     },
     addItem() {
       this.array.push({
-        name: $('#newItemName').val(),
-        points: 0
-      })
+        name: $("#newItemName").val(),
+        points: 0,
+        guess: ""
+      });
     },
     givePoints() {
-      let x = this.array.length - 1
+      let x = this.array.length - 1;
       let xName = this.array[x];
       /* eslint-disable no-console */
-      console.log(x, xName.name)
+      console.log(x, xName.name);
 
-      let itemPoints = $('#points').val();
-      let itemIndex = $('#index').val();
+      let itemPoints = $("#points").val();
+      let itemIndex = $("#index").val();
 
-      this.array[itemIndex].points = itemPoints;
-
+      setTimeout(() => {
+        this.array[itemIndex].points = itemPoints;
+      }, 0);
     },
     generateMovie() {
       let chooseRandom = Math.floor(Math.random() * this.movieArray.length);
@@ -190,6 +198,7 @@ export default {
         "http://www.omdbapi.com/?apikey=106e2bd&t=" + encodeURI(chooseMovie)
       ).then(function(response) {
         var rating = response.imdbRating;
+        // Vue.set(this.currentMovie, "rating", response.imdbRating);
         var imageUrl = response.Poster;
         var title = response.Title;
 
@@ -205,6 +214,7 @@ export default {
           $("rating").addClass("no-rating");
         }
       });
+      $(".rating").addClass("hidden");
     },
     addPlayer() {
       this.playerList.push({
@@ -218,6 +228,30 @@ export default {
       this.points += this.currentGuess;
       /* eslint-disable no-console */
       console.log("Current guess: ", this.currentGuess);
+
+      let currentGuessJS = parseFloat($("#currentGuessInput").val(), 10);
+      let currentGuessString = $("#currentGuessInput").val();
+      // let currentRating = parseFloat($('rating').val(), 10);
+
+      this.array[this.currentIndex].points =
+        this.array[this.currentIndex].points + currentGuessJS;
+
+      this.array[this.currentIndex].guess = currentGuessString;
+      // console.log(this.array[this.currentIndex].points);
+
+      this.currentIndex++;
+
+      // let currentPoints = currentRating - currentGuessJS;
+      // console.log('Current rating:', currentRating, ' | ', 'Points given: ', currentPoints);
+      console.log(this.currentMovieRating);
+
+      let arrayLength = this.array.length;
+      if (this.currentIndex == arrayLength) {
+        this.currentIndex = 0;
+        $(".rating").removeClass("hidden");
+      }
+
+      // }
     }
   }
 };
@@ -232,6 +266,11 @@ export default {
 <style scoped>
 * {
   font-family: "Open Sans", sans-serif;
+}
+
+.hidden {
+  color: transparent;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
 button {
