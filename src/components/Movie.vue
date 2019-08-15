@@ -2,7 +2,7 @@
   <div>
     {{ message }}
     <button class="generate-movie" @click="generateMovie">Ny film</button>
-
+    <!-- <button @click="fetchData">Rating shit</button> -->
     <div class="movie">
       <span class="title"></span>
 
@@ -20,13 +20,13 @@
         :class="{ 'active': index === 0 }"
       >
         {{ player.name }}
-        <span>Points: {{ player.points }}</span>
+        <span>Point: {{ player.points }}</span>
         <span v-if="player.myTurn == false">{{ player.myTurn }}</span>
         <span v-if="playerList[index] === 0">Current</span>
       </li>
     </ul>
-    <input type="text" class="addplayer" />
-    <button @click="addPlayer">Add player</button>
+    <!-- <input type="text" class="addplayer" />
+    <button @click="addPlayer">Add player</button>-->
     <br />
     <br />
 
@@ -64,6 +64,7 @@
 global.jQuery = require("jquery");
 var $ = global.jQuery;
 window.$ = $;
+import axios from "axios";
 
 export default {
   name: "Movie",
@@ -150,15 +151,20 @@ export default {
       currentIndex: 0,
       currentMovie: {
         rating: Number
-      }
+      },
+      currentRating: Number,
+      data: null,
+      errors: [],
+      currentTitle: String,
+      turns: 0
     };
   },
   props: {
     msg: String
   },
-  // created() {
-  //   this.array.push({ name: "Player 1", points: 0, guess: String });
-  // },
+  //  created() {
+  //  this.array.push({ name: "Player 1", points: 0, guess: String });
+  //  },
   methods: {
     addPointsProp() {
       this.array.forEach(item => {
@@ -193,27 +199,60 @@ export default {
     generateMovie() {
       let chooseRandom = Math.floor(Math.random() * this.movieArray.length);
       let chooseMovie = this.movieArray[chooseRandom];
+      console.log("Random: ", chooseRandom);
+      axios
+        .get(
+          "http://www.omdbapi.com/?apikey=106e2bd&t=" + encodeURI(chooseMovie)
+        )
+        .then(response => {
+          this.currentRating = response.data.imdbRating;
+          this.currentTitle = response.data.Title;
+          this.$forceUpdate();
 
-      $.getJSON(
-        "http://www.omdbapi.com/?apikey=106e2bd&t=" + encodeURI(chooseMovie)
-      ).then(function(response) {
-        var rating = response.imdbRating;
-        // Vue.set(this.currentMovie, "rating", response.imdbRating);
-        var imageUrl = response.Poster;
-        var title = response.Title;
+          var rating = response.data.imdbRating;
+          var imageUrl = response.data.Poster;
+          var title = response.data.Title;
 
-        if (imageUrl !== "N/A") {
-          $(".movie-poster").attr("src", imageUrl);
-        }
+          if (imageUrl !== "N/A") {
+            $(".movie-poster").attr("src", imageUrl);
+          }
 
-        $(".title").html(title);
+          $(".title").html(title);
 
-        if (rating != "N/A") {
-          $(".rating").html(rating);
-        } else {
-          $("rating").addClass("no-rating");
-        }
-      });
+          if (rating != "N/A") {
+            $(".rating").html(rating);
+          } else {
+            $("rating").addClass("no-rating");
+          }
+        })
+        .catch(error => {
+          this.errors.push(error);
+        });
+
+      // $.getJSON(
+      //   "http://www.omdbapi.com/?apikey=106e2bd&t=" + encodeURI(chooseMovie)
+      // ).then(function(response) {
+      //   var rating = response.imdbRating;
+      //   // console.log(rating);
+
+      //   // this.currentRating = response.imdbRating;
+
+      //   var imageUrl = response.Poster;
+      //   var title = response.Title;
+
+      //   if (imageUrl !== "N/A") {
+      //     $(".movie-poster").attr("src", imageUrl);
+      //   }
+
+      //   $(".title").html(title);
+
+      //   if (rating != "N/A") {
+      //     $(".rating").html(rating);
+      //   } else {
+      //     $("rating").addClass("no-rating");
+      //   }
+      // });
+
       $(".rating").addClass("hidden");
     },
     addPlayer() {
@@ -231,18 +270,31 @@ export default {
 
       let currentGuessJS = parseFloat($("#currentGuessInput").val(), 10);
       let currentGuessString = $("#currentGuessInput").val();
-      // let currentRating = parseFloat($('rating').val(), 10);
+
+      let pointsGiven = Math.round(Math.abs(this.currentRating -  currentGuessJS) * 100) / 100;  
+      console.log('points given: ', pointsGiven);
+
+      if (pointsGiven == 0) {
+        pointsGiven = 15;
+      } else if (pointsGiven < 0.251) {
+        pointsGiven = 10;
+      } else if (pointsGiven < 0.51) {
+        pointsGiven = 5;
+      } else if (pointsGiven < 1.1) {
+        pointsGiven = 3;
+      } else if (pointsGiven < 2) {
+        pointsGiven = 1;
+      } else {
+        pointsGiven = 0;
+      }
 
       this.array[this.currentIndex].points =
-        this.array[this.currentIndex].points + currentGuessJS;
+        this.array[this.currentIndex].points + pointsGiven; 
 
       this.array[this.currentIndex].guess = currentGuessString;
-      // console.log(this.array[this.currentIndex].points);
 
       this.currentIndex++;
 
-      // let currentPoints = currentRating - currentGuessJS;
-      // console.log('Current rating:', currentRating, ' | ', 'Points given: ', currentPoints);
       console.log(this.currentMovieRating);
 
       let arrayLength = this.array.length;
@@ -260,8 +312,6 @@ export default {
 
 
 
-
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 * {
@@ -270,7 +320,7 @@ export default {
 
 .hidden {
   color: transparent;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
 }
 
 button {
@@ -308,6 +358,7 @@ button:hover {
 
 .movie .rating {
   margin-top: 15px;
+  font-size: 24px;
 }
 
 .movie .rating.no-rating {
