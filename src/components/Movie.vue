@@ -30,12 +30,13 @@
     <br />
     <br />
 
-    <div class="test-shit" style="text-align: left;">
+    <div class="list-of-players" style="text-align: left;">
       <ul>
-        <li
-          v-for="(item, index) in array"
-          :key="index"
-        >{{ item.name }} | Points: {{ item.points }} | Gæt: {{ item.guess}}</li>
+        <li v-for="(item, index) in array" :key="index">
+          {{ item.name }} |
+          <span class="points hidden">Points: {{ item.points }}</span>
+          | Gæt: {{ item.guess}}
+        </li>
       </ul>
 
       <!-- <pre>{{ array }}</pre> -->
@@ -254,6 +255,7 @@ export default {
       // });
 
       $(".rating").addClass("hidden");
+      $('.points').addClass('hidden');
     },
     addPlayer() {
       this.playerList.push({
@@ -271,8 +273,9 @@ export default {
       let currentGuessJS = parseFloat($("#currentGuessInput").val(), 10);
       let currentGuessString = $("#currentGuessInput").val();
 
-      let pointsGiven = Math.round(Math.abs(this.currentRating -  currentGuessJS) * 100) / 100;  
-      console.log('points given: ', pointsGiven);
+      let pointsGiven =
+        Math.round(Math.abs(this.currentRating - currentGuessJS) * 100) / 100;
+      console.log("points given: ", pointsGiven);
 
       if (pointsGiven == 0) {
         pointsGiven = 15;
@@ -289,7 +292,7 @@ export default {
       }
 
       this.array[this.currentIndex].points =
-        this.array[this.currentIndex].points + pointsGiven; 
+        this.array[this.currentIndex].points + pointsGiven;
 
       this.array[this.currentIndex].guess = currentGuessString;
 
@@ -301,6 +304,7 @@ export default {
       if (this.currentIndex == arrayLength) {
         this.currentIndex = 0;
         $(".rating").removeClass("hidden");
+        $(".points").removeClass("hidden");
       }
 
       // }
@@ -321,6 +325,13 @@ export default {
 .hidden {
   color: transparent;
   text-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
+}
+
+.list-of-players {
+  text-align: left;
+}
+
+.list-of-players li.points {
 }
 
 button {
