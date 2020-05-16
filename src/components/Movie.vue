@@ -1270,7 +1270,8 @@ export default {
         'Okuribito',
         'Bamboozled',
         'Lawless',
-        'Inside Llewyn Davis'
+        'Inside Llewyn Davis',
+        'Gisaengchung'
       ],
       playerList: [
         // { myTurn: false, name: "Peter", points: 0 }
