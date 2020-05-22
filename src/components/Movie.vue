@@ -1345,31 +1345,7 @@ export default {
                 .catch(error => {
                     this.errors.push(error);
                 });
-
-            // $.getJSON(
-            //   "http://www.omdbapi.com/?apikey=106e2bd&t=" + encodeURI(chooseMovie)
-            // ).then(function(response) {
-            //   var rating = response.imdbRating;
-            //   // console.log(rating);
-
-            //   // this.currentRating = response.imdbRating;
-
-            //   var imageUrl = response.Poster;
-            //   var title = response.Title;
-
-            //   if (imageUrl !== "N/A") {
-            //     $(".movie-poster").attr("src", imageUrl);
-            //   }
-
-            //   $(".title").html(title);
-
-            //   if (rating != "N/A") {
-            //     $(".rating").html(rating);
-            //   } else {
-            //     $("rating").addClass("no-rating");
-            //   }
-            // });
-
+                
             $(".rating").addClass("hidden");
             $(".playerguess").addClass("hidden");
         },
